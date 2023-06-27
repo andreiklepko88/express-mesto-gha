@@ -24,7 +24,7 @@ app.use((req, res, next) => {
 
 app.use(userRoutes);
 app.use(cardRoutes);
-app.use((req, res) => {
+app.use('*', (req, res) => {
   res.status(NOT_FOUND_CODE).send({
     message: 'Incorrect address',
   });

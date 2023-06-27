@@ -59,7 +59,7 @@ const likeCard = (req, res) => {
     { new: true },
   ).then((card) => {
     if (!card) {
-      return res.status(NOT_FOUND_CODE).send({ message: 'Incorrect Id number' });
+      return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
     }
     return res.status(OK_CODE).send({ message: 'Like added' });
   })
@@ -74,12 +74,12 @@ const likeCard = (req, res) => {
 
 const dislikeCard = (req, res) => {
   return Card.findByIdAndUpdate(
-    req.params.cardId,
+    { _id: req.params.cardId },
     { $pull: { likes: req.user._id } },
     { new: true },
   ).then((card) => {
     if (!card) {
-      return res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
     }
     return res.status(OK_CODE).send({ message: 'Like removed' });
   })
