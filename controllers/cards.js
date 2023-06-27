@@ -39,12 +39,16 @@ const deleteCard = (req, res) => {
   return Card.findOneAndDelete({ _id: req.params.cardId }).then(
     (card) => {
       if (!card) {
-        return res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+        return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
       }
       return res.status(OK_CODE).send({ message: 'Card deleted' });
     },
   ).catch((err) => {
-    res.status(SERVER_ERROR_CODE).send({ message: err.message });
+    if (!req.params.cardId.isValid) {
+      res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+    } else {
+      res.status(SERVER_ERROR_CODE).send({ message: err.message });
+    }
   });
 };
 
@@ -55,12 +59,16 @@ const likeCard = (req, res) => {
     { new: true },
   ).then((card) => {
     if (!card) {
-      return res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      return res.status(NOT_FOUND_CODE).send({ message: 'Incorrect Id number' });
     }
     return res.status(OK_CODE).send({ message: 'Like added' });
   })
     .catch((err) => {
-      res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      if (!req.params.cardId.isValid) {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      } else {
+        res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      }
     });
 };
 
@@ -76,7 +84,11 @@ const dislikeCard = (req, res) => {
     return res.status(OK_CODE).send({ message: 'Like removed' });
   })
     .catch((err) => {
-      res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      if (!req.params.cardId.isValid) {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      } else {
+        res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      }
     });
 };
 

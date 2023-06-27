@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const routes = require('./routes');
+const userRoutes = require('./routes/users');
+const cardRoutes = require('./routes/cards');
+const { NOT_FOUND_CODE } = require('./utils/constants');
 
 const app = express();
 const { PORT = 3000 } = process.env;
@@ -20,9 +22,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(routes);
+app.use(userRoutes);
+app.use(cardRoutes);
 app.use((req, res) => {
-  res.status(404).send({
+  res.status(NOT_FOUND_CODE).send({
     message: 'Incorrect address',
   });
 });

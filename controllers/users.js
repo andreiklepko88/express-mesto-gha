@@ -23,13 +23,17 @@ const getUserById = (req, res) => {
   return User.findById({ _id: req.params.userId })
     .then((user) => {
       if (!user) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+        res.status(NOT_FOUND_CODE).send({ message: 'User not found' });
         return;
       }
       res.status(OK_CODE).send(user);
     })
     .catch((err) => {
-      res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      if (!req.params.userId.isValid) {
+        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      } else {
+        res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      }
     });
 };
 
