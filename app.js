@@ -21,6 +21,11 @@ app.use((req, res, next) => {
 });
 
 app.use(routes);
+app.use((req, res) => {
+  res.status(404).send({
+    message: 'Incorrect address',
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running at port ${PORT}`);

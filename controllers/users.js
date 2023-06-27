@@ -20,11 +20,10 @@ const getUsers = (req, res) => {
 };
 
 const getUserById = (req, res) => {
-  const { id } = req.params;
-  return User.findById(id)
+  return User.findById({ _id: req.params.userId })
     .then((user) => {
       if (!user) {
-        res.status(NOT_FOUND_CODE).send({ message: 'Not found' });
+        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
         return;
       }
       res.status(OK_CODE).send(user);
@@ -49,19 +48,21 @@ const createUser = (req, res) => {
     });
 };
 
-// eslint-disable-next-line arrow-body-style
 const updateProfile = (req, res) => {
   return User.findByIdAndUpdate(
     req.user._id,
     req.body,
-    { runValidators: true },
+    {
+      runValidators: true,
+      new: true,
+    },
   )
     .then((user) => {
       if (!user) {
         res.status(NOT_FOUND_CODE).send({ message: 'Not found' });
         return;
       }
-      res.status(OK_CODE).send({ message: 'User updated' });
+      res.status(OK_CODE).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -76,14 +77,17 @@ const updateAvatar = (req, res) => {
   return User.findByIdAndUpdate(
     req.user._id,
     req.body,
-    { runValidators: true },
+    {
+      runValidators: true,
+      new: true,
+    },
   )
     .then((user) => {
       if (!user) {
         res.status(NOT_FOUND_CODE).send({ message: 'Not found' });
         return;
       }
-      res.status(OK_CODE).send({ message: 'Avatar updated' });
+      res.status(OK_CODE).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
