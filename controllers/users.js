@@ -27,8 +27,7 @@ const getUserById = (req, res) => {
         return;
       }
       res.status(OK_CODE).send(user);
-    })
-    .catch((err) => {
+    }).catch((err) => {
       if (!req.params.userId.isValid) {
         res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
       } else {
