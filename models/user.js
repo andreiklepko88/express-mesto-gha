@@ -3,19 +3,19 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    required: [true, 'Name is required'],
+    minlength: [2, 'Must be at least 2 symbols'],
+    maxlength: [30, 'Maximum 30 symbols, got {VALUE}'],
   },
   about: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    required: [true, 'User information is required'],
+    minlength: [2, 'Must be at least 2 symbols'],
+    maxlength: [30, 'Maximum 30 symbols, got {VALUE}'],
   },
   avatar: {
     type: String,
-    required: true,
+    required: [true, 'Avatar is required'],
   },
 });
 
