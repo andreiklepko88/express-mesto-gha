@@ -69,7 +69,7 @@ const likeCard = (req, res, next) => {
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
-        throw new BadRequestError('Incorrect Id number');
+        next(new BadRequestError('Incorrect Id number'));
       } else {
         return next(err);
       }
@@ -89,7 +89,7 @@ const dislikeCard = (req, res, next) => {
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
-        throw new BadRequestError('Incorrect Id number');
+        next(new BadRequestError('Incorrect Id number'));
       } else {
         return next(err);
       }

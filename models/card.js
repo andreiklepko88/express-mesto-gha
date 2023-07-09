@@ -4,9 +4,9 @@ const { regexUrl } = require('../utils/constants');
 const cardSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Place name is required'],
-    minlength: [2, 'Must be at least 2 symbols'],
-    maxlength: [30, 'Maximum 30 symbols, got {VALUE}'],
+    required: true,
+    minlength: 2,
+    maxlength: 30,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
@@ -15,7 +15,7 @@ const cardSchema = new mongoose.Schema({
   },
   link: {
     type: String,
-    required: [true, 'Link is required'],
+    required: true,
     validate: {
       validator: (value) => regexUrl.test(value),
       message: 'Avatar URL format is incorrect',

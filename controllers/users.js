@@ -41,7 +41,7 @@ const getUserById = (req, res, next) => {
       res.status(OK_CODE).send(user);
     }).catch((err) => {
       if (!req.params.userId.isValid) {
-        throw new BadRequestError('Incorrect Id number');
+        next(new BadRequestError('Incorrect Id number'));
       } else {
         next(err);
       }
@@ -53,11 +53,10 @@ const createUser = (req, res, next) => {
   if (!email || !password) {
     throw new BadRequestError('No password or email');
   }
-
   return User.findOne({ email })
     .then((user) => {
       if (user) {
-        next(new ConflictError('User already exists'));
+        throw new ConflictError('User already exists');
       }
       bcrypt.hash(password, saltRounds, (err, hash) => {
         return User.create({
@@ -66,19 +65,17 @@ const createUser = (req, res, next) => {
         })
           .then((newUser) => {
             res.status(CREATED_CODE).send(newUser);
-          })
-          .catch((e) => {
-            if (e.code === 11000) {
-              next(new ConflictError('User already exists'));
-            }
           });
       });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`);
+      if (err.code === 11000) {
+        next(new ConflictError('User already exists'));
       }
-      return next(err);
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('not valid'));
+      }
+      next(err);
     });
 };
 
@@ -121,7 +118,7 @@ const updateProfile = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`);
+        next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`));
       }
       return next(err);
     });
@@ -144,7 +141,7 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`);
+        next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`));
       }
       return next(err);
     });

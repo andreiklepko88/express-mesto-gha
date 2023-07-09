@@ -5,14 +5,14 @@ const { regexUrl } = require('../utils/constants');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    minlength: [2, 'Must be at least 2 symbols'],
-    maxlength: [30, 'Maximum 30 symbols, got {VALUE}'],
+    minlength: 2,
+    maxlength: 30,
     default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
-    minlength: [2, 'Must be at least 2 symbols'],
-    maxlength: [30, 'Maximum 30 symbols, got {VALUE}'],
+    minlength: 2,
+    maxlength: 30,
     default: 'Исследователь',
   },
   avatar: {
@@ -25,7 +25,7 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: [true, 'Email is required'],
+    required: true,
     unique: true,
     validate: {
       validator: (value) => validator.isEmail(value),
@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Password is required'],
+    required: true,
     select: false,
   },
 });
