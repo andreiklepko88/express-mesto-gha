@@ -37,23 +37,18 @@ const deleteCard = (req, res, next) => {
   return Card.findById(req.params.cardId).then(
     (card) => {
       if (!card) {
-        throw new NotFoundError('Card not found');
+        next(new NotFoundError('Card not found'));
       }
-      if (card.owner.toString() !== req.user.id) {
-        throw new ForbiddenError('Can not delete another users card');
+      if (req.user.id !== card.owner.toString()) {
+        next(new ForbiddenError('Can not delete another users card'));
+      } else {
+        Card.deleteOne(card)
+          .then(() => {
+            return res.status(OK_CODE).send({ message: 'Card deleted' });
+          });
       }
-      Card.deleteOne(card)
-        .then(() => {
-          return res.status(OK_CODE).send('Card deleted');
-        });
     },
-  ).catch((err) => {
-    if (!req.params.cardId.isValid) {
-      next(new BadRequestError('Incorrect Id number'));
-    } else {
-      next(err);
-    }
-  });
+  ).catch(next);
 };
 
 const likeCard = (req, res, next) => {
@@ -63,15 +58,16 @@ const likeCard = (req, res, next) => {
     { new: true },
   ).then((card) => {
     if (!card) {
-      throw new NotFoundError('Card not found');
+      next(new NotFoundError('Card not found'));
+    } else {
+      res.status(OK_CODE).send({ message: 'Like added' });
     }
-    return res.status(OK_CODE).send('Like added');
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
         next(new BadRequestError('Incorrect Id number'));
       } else {
-        return next(err);
+        next(err);
       }
     });
 };
@@ -83,15 +79,16 @@ const dislikeCard = (req, res, next) => {
     { new: true },
   ).then((card) => {
     if (!card) {
-      throw new NotFoundError('Card not found');
+      next(new NotFoundError('Card not found'));
+    } else {
+      res.status(OK_CODE).send({ message: 'Like removed' });
     }
-    return res.status(OK_CODE).send('Like removed');
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
         next(new BadRequestError('Incorrect Id number'));
       } else {
-        return next(err);
+        next(err);
       }
     });
 };

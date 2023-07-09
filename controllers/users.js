@@ -36,9 +36,10 @@ const getUserById = (req, res, next) => {
   return User.findById({ _id: req.params.userId })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('User not found');
+        next(new NotFoundError('User not found'));
+      } else {
+        res.status(OK_CODE).send(user);
       }
-      res.status(OK_CODE).send(user);
     }).catch((err) => {
       if (!req.params.userId.isValid) {
         next(new BadRequestError('Incorrect Id number'));
@@ -74,8 +75,9 @@ const createUser = (req, res, next) => {
       }
       if (err.name === 'ValidationError') {
         next(new BadRequestError('not valid'));
+      } else {
+        next(err);
       }
-      next(err);
     });
 };
 
@@ -85,7 +87,7 @@ const login = (req, res, next) => {
     throw new BadRequestError({ message: 'No password or email' });
   }
 
-  return User.findOne({ email }, { runValidators: true }).select('+password')
+  return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError('Wrong email or password');
