@@ -1,93 +1,97 @@
 /* eslint-disable arrow-body-style */
 const Card = require('../models/card');
+const BadRequestError = require('../errors/bad-request-err');
+const NotFoundError = require('../errors/not-found-err');
+const ForbiddenError = require('../errors/forbidden-err');
 const {
-  OK_CODE, CREATED_CODE, BAD_REQUEST_CODE, NOT_FOUND_CODE,
-  SERVER_ERROR_CODE,
+  OK_CODE, CREATED_CODE,
 } = require('../utils/constants');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   return Card.find({})
     .then((cards) => {
       if (!cards) {
-        res.status(NOT_FOUND_CODE).send({ message: 'Not found' });
-        return;
+        throw new NotFoundError('Not found');
       }
       res.status(OK_CODE).send(cards);
     })
-    .catch((err) => {
-      res.status(SERVER_ERROR_CODE).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const newCardData = req.body;
-  newCardData.owner = req.user._id;
+  newCardData.owner = req.user.id;
   return Card.create(newCardData).then(
     (newCard) => {
       res.status(CREATED_CODE).send(newCard);
     },
   ).catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(BAD_REQUEST_CODE)
-        .send({ message: `${Object.values(err.errors).map((error) => error.message).join('. ')}` });
+      next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`));
     }
-    return res.status(SERVER_ERROR_CODE).send({ message: 'Server error' });
+    return next(err);
   });
 };
 
-const deleteCard = (req, res) => {
-  return Card.findOneAndDelete({ _id: req.params.cardId }).then(
+const deleteCard = (req, res, next) => {
+  return Card.findById(req.params.cardId).then(
     (card) => {
       if (!card) {
-        return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
+        throw new NotFoundError('Card not found');
       }
-      return res.status(OK_CODE).send({ message: 'Card deleted' });
+      if (card.owner.toString() !== req.user.id) {
+        throw new ForbiddenError('Can not delete another users card');
+      }
+      Card.deleteOne(card)
+        .then(() => {
+          return res.status(OK_CODE).send('Card deleted');
+        });
     },
   ).catch((err) => {
     if (!req.params.cardId.isValid) {
-      res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+      next(new BadRequestError('Incorrect Id number'));
     } else {
-      res.status(SERVER_ERROR_CODE).send({ message: err.message });
+      next(err);
     }
   });
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
   ).then((card) => {
     if (!card) {
-      return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
+      throw new NotFoundError('Card not found');
     }
-    return res.status(OK_CODE).send({ message: 'Like added' });
+    return res.status(OK_CODE).send('Like added');
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+        throw new BadRequestError('Incorrect Id number');
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: err.message });
+        return next(err);
       }
     });
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     { _id: req.params.cardId },
     { $pull: { likes: req.user._id } },
     { new: true },
   ).then((card) => {
     if (!card) {
-      return res.status(NOT_FOUND_CODE).send({ message: 'Card not found' });
+      throw new NotFoundError('Card not found');
     }
-    return res.status(OK_CODE).send({ message: 'Like removed' });
+    return res.status(OK_CODE).send('Like removed');
   })
     .catch((err) => {
       if (!req.params.cardId.isValid) {
-        res.status(BAD_REQUEST_CODE).send({ message: 'Incorrect Id number' });
+        throw new BadRequestError('Incorrect Id number');
       } else {
-        res.status(SERVER_ERROR_CODE).send({ message: err.message });
+        return next(err);
       }
     });
 };

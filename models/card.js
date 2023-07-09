@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { regexUrl } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -15,6 +16,10 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: [true, 'Link is required'],
+    validate: {
+      validator: (value) => regexUrl.test(value),
+      message: 'Avatar URL format is incorrect',
+    },
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
