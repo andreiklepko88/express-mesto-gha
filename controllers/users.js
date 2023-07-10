@@ -73,6 +73,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictError('User already exists'));
+        return;
       }
       if (err.name === 'ValidationError') {
         next(new BadRequestError('not valid'));
