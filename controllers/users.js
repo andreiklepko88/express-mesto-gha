@@ -50,7 +50,9 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { email, password, avatar, about, name } = req.body;
+  const {
+    email, password, avatar, about, name,
+  } = req.body;
   if (!email || !password) {
     throw new BadRequestError('No password or email');
   }
