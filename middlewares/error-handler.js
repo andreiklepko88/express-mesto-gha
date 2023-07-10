@@ -4,7 +4,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
   } else {
-    res.status(SERVER_ERROR_CODE).send({ message: err.message || 'Server error.' });
+    res.status(SERVER_ERROR_CODE).send({ message: 'Server error.' });
   }
   next();
 };

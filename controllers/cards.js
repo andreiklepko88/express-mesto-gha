@@ -11,7 +11,7 @@ const getCards = (req, res, next) => {
   return Card.find({})
     .then((cards) => {
       if (!cards) {
-        throw new NotFoundError('Not found');
+        next(new NotFoundError('Not found'));
       }
       res.status(OK_CODE).send(cards);
     })
@@ -27,7 +27,7 @@ const createCard = (req, res, next) => {
     },
   ).catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`));
+      return next(new BadRequestError(`${Object.values(err.errors).map((error) => error.message).join('. ')}`));
     }
     return next(err);
   });
@@ -54,7 +54,7 @@ const deleteCard = (req, res, next) => {
 const likeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    { $addToSet: { likes: req.user.id } },
     { new: true },
   ).then((card) => {
     if (!card) {
@@ -75,7 +75,7 @@ const likeCard = (req, res, next) => {
 const dislikeCard = (req, res, next) => {
   return Card.findByIdAndUpdate(
     { _id: req.params.cardId },
-    { $pull: { likes: req.user._id } },
+    { $pull: { likes: req.user.id } },
     { new: true },
   ).then((card) => {
     if (!card) {
