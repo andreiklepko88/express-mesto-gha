@@ -88,7 +88,7 @@ const login = (req, res, next) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new UnauthorizedError('Wrong email or password');
+        return Promise.reject(new UnauthorizedError('Wrong email or password'));
       }
       return bcrypt.compare(password, user.password, (error, isPasswordMatch) => {
         if (!isPasswordMatch) {
