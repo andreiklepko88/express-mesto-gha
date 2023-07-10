@@ -50,7 +50,7 @@ const getUserById = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { email, password } = req.body;
+  const { email, password, avatar, about, name } = req.body;
   if (!email || !password) {
     throw new BadRequestError('No password or email');
   }
@@ -58,16 +58,26 @@ const createUser = (req, res, next) => {
     .then((user) => {
       if (user) {
         throw new ConflictError('User already exists');
+      } else {
+        bcrypt.hash(password, saltRounds, (err, hash) => {
+          return User.create({
+            avatar,
+            about,
+            name,
+            email,
+            password: hash,
+          })
+            .then((createdUser) => {
+              res.status(CREATED_CODE).send({
+                _id: createdUser._id,
+                name: createdUser.name,
+                about: createdUser.about,
+                email: createdUser.email,
+                avatar: createdUser.avatar,
+              });
+            });
+        });
       }
-      bcrypt.hash(password, saltRounds, (err, hash) => {
-        return User.create({
-          email,
-          password: hash,
-        })
-          .then((newUser) => {
-            res.status(CREATED_CODE).send(newUser);
-          });
-      });
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -88,6 +98,7 @@ const login = (req, res, next) => {
   }
 
   return User.findOne({ email }).select('+password')
+
     .then((user) => {
       if (!user) {
         throw new UnauthorizedError('Wrong email or password');
