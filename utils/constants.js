@@ -25,4 +25,3 @@ module.exports = {
   saltRounds,
   JWT_SECRET,
 };
-
