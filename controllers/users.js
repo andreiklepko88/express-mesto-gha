@@ -62,7 +62,6 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then((createdUser) => {
-      console.log(createdUser);
       res.status(CREATED_CODE).send({
         _id: createdUser._id,
         name: createdUser.name,
