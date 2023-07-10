@@ -90,13 +90,14 @@ const login = (req, res, next) => {
       if (!user) {
         return Promise.reject(new UnauthorizedError('Wrong email or password'));
       }
-      return bcrypt.compare(password, user.password, (error, isPasswordMatch) => {
-        if (!isPasswordMatch) {
-          return Promise.reject(new UnauthorizedError('Password or email is not correct'));
-        }
-        const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-        return res.status(OK_CODE).send({ token });
-      });
+      return bcrypt.compare(password, user.password)
+        .then((isPasswordMatch) => {
+          if (!isPasswordMatch) {
+            return Promise.reject(new UnauthorizedError('Password or email is not correct'));
+          }
+          const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
+          return res.status(OK_CODE).send({ token });
+        });
     })
     .catch(next);
 };
